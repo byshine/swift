@@ -1,0 +1,32 @@
+version: '3.9'
+
+services:
+  swift: 
+    image: node:16
+    volumes:
+      - ./swift:/swift  
+    working_dir: /swift
+    networks:
+      - back-tier
+
+  server: 
+    image: node:16
+    volumes:
+      - ./server:/server  
+    working_dir: /server
+    networks:
+      - back-tier
+
+  nginx:
+    image: nginx
+    volumes:
+      - ./nginx/conf.d/default.conf:/etc/nginx/conf.d/default.conf
+    ports:
+      - "80:80"
+    networks:
+      - back-tier
+    
+
+networks:
+  back-tier:
+    driver: bridge
