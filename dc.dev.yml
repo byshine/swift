@@ -11,6 +11,7 @@ services:
   server:
     command: bash -c "yarn && yarn start" 
     ports:
-      - "4000:4000"
+      - "3000:3000"
     environment:
       - NODE_ENV=development
+      - PORT=3000
