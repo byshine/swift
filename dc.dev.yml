@@ -4,14 +4,13 @@ services:
   swift: 
     command: bash -c "yarn && yarn start"
     ports:
-      - "5000:5000"
+      - "3000:3000"
     environment:
       - NODE_ENV=development
 
   server:
     command: bash -c "yarn && yarn start" 
     ports:
-      - "3000:3000"
+      - "4000:4000"
     environment:
       - NODE_ENV=development
-      - PORT=3000
