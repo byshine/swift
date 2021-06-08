@@ -96,7 +96,7 @@ module.exports = {
       "gradient-to-l": "linear-gradient(to left, var(--tw-gradient-stops))",
       "gradient-to-tl":
         "linear-gradient(to top left, var(--tw-gradient-stops))",
-      main: 'url("./images/bg-full-opt.jpg")',
+      main: 'url("./images/opt.png")',
     },
     backgroundOpacity: (theme) => theme("opacity"),
     backgroundPosition: {
