@@ -1,9 +1,8 @@
-import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { RootState, AppThunk } from "../../app/store";
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 export interface SwiftState {
-  micStream: MediaStream | null;
-  videoStream: MediaStream | null;
+  micStream: Boolean | null;
+  videoStream: Boolean | null;
 }
 
 const initialState: SwiftState = {
@@ -11,18 +10,20 @@ const initialState: SwiftState = {
   videoStream: null,
 };
 
-export const counterSlice = createSlice({
+export const swiftSlice = createSlice({
   name: "Swift",
   initialState,
   // The `reducers` field lets us define reducers and generate associated actions
   reducers: {
-    setMicStream: (state, action: PayloadAction<MediaStream>) => {
+    setMicStream: (state, action: PayloadAction<Boolean>) => {
       state.micStream = action.payload;
     },
-    setVideoStream: (state, action: PayloadAction<MediaStream>) => {
+    setVideoStream: (state, action: PayloadAction<Boolean>) => {
       state.videoStream = action.payload;
     },
   },
 });
 
-export default counterSlice.reducer;
+export const { setMicStream, setVideoStream } = swiftSlice.actions;
+
+export default swiftSlice.reducer;

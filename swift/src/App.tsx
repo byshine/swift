@@ -8,7 +8,7 @@ function App() {
   console.log("Location", location);
 
   return (
-    <AnimatePresence>
+    <AnimatePresence exitBeforeEnter>
       <Switch location={location} key={location.pathname}>
         <Route path="/" exact component={Home} />
         <Route path="/join" exact component={Permissions} />
