@@ -2,13 +2,19 @@ import { Fragment, useState } from "react";
 import { motion } from "framer-motion";
 //import { setMicStream, setVideoStream } from "../features/swift/swift";
 import Preview from "../components/Preview";
-
+import { useSelector } from "react-redux";
+import { RootState } from "../app/store";
+import Room from "../components/Room";
+import mediasoup from "mediasoup-client";
+import { Socket } from "net";
 const Permissions = () => {
   const [mic, setMic] = useState(false);
   const [vid, setVideo] = useState(false);
   const [complete, setComplete] = useState(false);
   const [micStream, setMicStream] = useState<null | MediaStream>(null);
   const [videoStream, setVideoStream] = useState<null | MediaStream>(null);
+
+  const joined = useSelector((state: RootState) => state.swift.joined);
 
   const start = async () => {
     setMic(true);
@@ -23,6 +29,7 @@ const Permissions = () => {
     });
     setVideoStream(vidStream);
     setVideo(false);
+
     setComplete(true);
   };
 
@@ -70,20 +77,6 @@ const Permissions = () => {
     );
   };
 
-  const Done = () => {
-    return (
-      <Fragment>
-        <motion.div
-          animate={{ opacity: 1, transition: { duration: 1 } }}
-          initial={{ opacity: 0 }}
-          className="text-gray-300 text-xl"
-        >
-          Thank you for permissions
-        </motion.div>
-      </Fragment>
-    );
-  };
-
   const variant = {
     show: {
       opacity: 1,
@@ -104,11 +97,14 @@ const Permissions = () => {
       className="bg-gray-800 fixed inset-0 flex justify-center items-center font-serif"
     >
       <div className="flex flex-col items-center justify-center">
-        {!complete && !mic && !vid && <Disclaimer />}
-        {!complete && mic && !vid && <MicPermissions />}
-        {!complete && !mic && vid && <VidPermissions />}
-        {complete && (
+        {!joined && !complete && !mic && !vid && <Disclaimer />}
+        {!joined && !complete && mic && !vid && <MicPermissions />}
+        {!joined && !complete && !mic && vid && <VidPermissions />}
+        {!joined && complete && (
           <Preview micStream={micStream} videoStream={videoStream} />
+        )}
+        {joined && (
+          <Room micStream={micStream} videoStream={videoStream}></Room>
         )}
       </div>
     </motion.div>

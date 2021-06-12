@@ -51,7 +51,7 @@ function Home() {
       <div className="text-white text-sm font-serif mb-2 bg-opacity-75 bg-black rounded-sm px-2 py-1">
         Active Rooms: <span className="font-bold">3</span>
       </div>
-      <Link to="/join">
+      <Link to="/room/test">
         <button className="bg-gray-50 bg-opacity-75 text-gray-800 px-8 py-3 rounded-sm font-serif text-xl tracking-wide focus:outline-none active:scale-95 hover:bg-black hover:text-white transition-all duration-500 transform">
           Join Now
         </button>
