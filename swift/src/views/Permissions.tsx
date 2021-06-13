@@ -2,9 +2,10 @@ import { Fragment, useState } from "react";
 import { motion } from "framer-motion";
 //import { setMicStream, setVideoStream } from "../features/swift/swift";
 import Preview from "../components/Preview";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../app/store";
 import Room from "../components/Room";
+import { loadDevice } from "../features/device/device";
 const Permissions = () => {
   const [mic, setMic] = useState(false);
   const [vid, setVideo] = useState(false);
@@ -15,8 +16,12 @@ const Permissions = () => {
   const joined = useSelector((state: RootState) => state.swift.joined);
   const deviceState = useSelector((state: RootState) => state.device);
 
+  const dispatch = useDispatch();
+  dispatch(loadDevice());
+
   const start = async () => {
     console.log("loaded?", deviceState);
+
     setMic(true);
     const micStream = await navigator.mediaDevices.getUserMedia({
       audio: true,

@@ -2,11 +2,18 @@ import DeviceHelper from "../../utils/DeviceHelper";
 import { createSlice, PayloadAction, createAsyncThunk } from "@reduxjs/toolkit";
 import { getRouterCapabilities } from "../../api/api";
 
-const deviceHelper = new DeviceHelper();
+export const deviceHelper = new DeviceHelper();
 
-const loadDevice = createAsyncThunk("device/loadDevice", async () => {
+export const loadDevice = createAsyncThunk("device/loadDevice", async () => {
   const result = await getRouterCapabilities();
   const routerRtpCapabilities = result.data;
+  /*
+  await new Promise((resolve, reject) => {
+    setTimeout(() => {
+      resolve(true);
+    }, 5000);
+  });
+  */
   return deviceHelper.loadDevice(routerRtpCapabilities);
 });
 
