@@ -2,38 +2,16 @@ import { Fragment, useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../app/store";
-import { loadDevice, deviceHelper } from "../features/device/device";
+import { loadDevice, queryAudio, queryVideo } from "../features/device/device";
+import { setJoined } from "../features/swift/swift";
+import Room from "../components/Room";
 const Permissions = () => {
   const [started, setStarted] = useState(false);
-  const [queryAudio, setQueryAudio] = useState<Boolean | null>(null);
-  const [queryVideo, setQueryVideo] = useState<Boolean | null>(null);
-
-  //const joined = useSelector((state: RootState) => state.swift.joined);
-  const deviceLoaded = useSelector((state: RootState) => state.device.loaded);
-
+  const device = useSelector((state: RootState) => state.device);
+  const joined = useSelector((state: RootState) => state.swift.joined);
   const dispatch = useDispatch();
   dispatch(loadDevice());
 
-  /*
-  const start = async () => {
-    console.log("loaded?", deviceState);
-    console.log(deviceHelper.getDevice());
-    setMic(true);
-    const micStream = await navigator.mediaDevices.getUserMedia({
-      audio: true,
-    });
-    setMicStream(micStream);
-    setMic(false);
-    setVideo(true);
-    const vidStream = await navigator.mediaDevices.getUserMedia({
-      video: true,
-    });
-    setVideoStream(vidStream);
-    setVideo(false);
-
-    setComplete(true);
-  };
-  */
   const Disclaimer = () => {
     return (
       <Fragment>
@@ -52,17 +30,35 @@ const Permissions = () => {
     );
   };
 
+  const Preview = () => {
+    return (
+      <div className="flex flex-col items-center justify-center">
+        <video muted={true} playsInline={true} autoPlay={true}></video>
+        <button
+          onClick={() => {
+            dispatch(setJoined(true));
+          }}
+          className="bg-gray-100 text-gray-800 text-xl px-4 py-2 rounded-md"
+        >
+          Join Room
+        </button>
+      </div>
+    );
+  };
+
   const Funnel = () => {
     if (!started) {
       return <Disclaimer />;
-    } else if (!deviceLoaded) {
+    } else if (!device.loaded) {
       return <div>Configuring settings...</div>;
-    } else if (queryAudio === null) {
+    } else if (device.queryAudio === null) {
       return <QueryAudio />;
-    } else if (queryVideo === null) {
-      return <div>Test Video</div>;
+    } else if (device.queryVideo === null) {
+      return <QueryVideo />;
+    } else if (!joined) {
+      return <Preview />;
     } else {
-      return <div>Test</div>;
+      return <Room />;
     }
   };
 
@@ -72,7 +68,7 @@ const Permissions = () => {
         await navigator.mediaDevices.getUserMedia({
           audio: true,
         });
-        setQueryAudio(true);
+        dispatch(queryAudio(true));
       }
       askPermissions();
     });
@@ -89,7 +85,9 @@ const Permissions = () => {
         await navigator.mediaDevices.getUserMedia({
           video: true,
         });
+        dispatch(queryVideo(true));
       }
+
       askPermissions();
     });
     return (
