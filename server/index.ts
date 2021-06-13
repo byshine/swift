@@ -1,5 +1,6 @@
 import { Socket } from "socket.io";
-import { Worker, RtpParameters, Router, RtpCodecCapability} from "mediasoup/lib/types";
+import { Worker, Router } from "mediasoup/lib/types";
+import { Request, Response } from 'express'
 import MediaSoupHelper from './utils/MediaSoupHelper'
 const config = require('./config')
 const mediasoup = require('mediasoup')
@@ -13,16 +14,6 @@ const options = {
   cert: fs.readFileSync(path.join(__dirname + '/ssl/server.crt'), 'utf-8')
 };
 
-const httpsServer = https.createServer(options, app)
-const io = require("socket.io")(httpsServer, {
-  cors: {
-    origin: "http://localhost",
-    methods: ["GET", "POST"]
-  } 
-});
-httpsServer.listen(4000, () => {
-    console.log('listening https ' + '4000')
-})
 
 
 let worker: Worker;
@@ -54,7 +45,29 @@ async function setUpRouter(worker: Worker, mediaCodecs: any) {
   mediaSoupRouter = await setUpRouter(worker, mediaCodecs )
 })()
 
+
+
+const httpsServer = https.createServer(options, app)
+const io = require("socket.io")(httpsServer, {
+  cors: {
+    origin: "http://localhost",
+    methods: ["GET", "POST"]
+  } 
+});
+
+
+httpsServer.listen(4000, () => {
+    console.log('listening https ' + '4000')
+})
+
+app.get('/api/router/capabilities/', (req: Request, res: Response) => {
+  return res.send(mediaSoupRouter.rtpCapabilities)
+})
+
+
+
 io.on('connection', (socket: Socket) => {
+    console.log("Connected")
 
     socket.on('getRouterRtpCapabilities', (data, callback) => {
       callback(mediaSoupRouter.rtpCapabilities)

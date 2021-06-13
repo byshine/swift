@@ -5,8 +5,6 @@ import Preview from "../components/Preview";
 import { useSelector } from "react-redux";
 import { RootState } from "../app/store";
 import Room from "../components/Room";
-import mediasoup from "mediasoup-client";
-import { Socket } from "net";
 const Permissions = () => {
   const [mic, setMic] = useState(false);
   const [vid, setVideo] = useState(false);
@@ -15,8 +13,10 @@ const Permissions = () => {
   const [videoStream, setVideoStream] = useState<null | MediaStream>(null);
 
   const joined = useSelector((state: RootState) => state.swift.joined);
+  const deviceState = useSelector((state: RootState) => state.device);
 
   const start = async () => {
+    console.log("loaded?", deviceState);
     setMic(true);
     const micStream = await navigator.mediaDevices.getUserMedia({
       audio: true,
@@ -97,6 +97,7 @@ const Permissions = () => {
       className="bg-gray-800 fixed inset-0 flex justify-center items-center font-serif"
     >
       <div className="flex flex-col items-center justify-center">
+        Loaded? {JSON.stringify(deviceState.loaded)}
         {!joined && !complete && !mic && !vid && <Disclaimer />}
         {!joined && !complete && mic && !vid && <MicPermissions />}
         {!joined && !complete && !mic && vid && <VidPermissions />}
