@@ -1,24 +1,20 @@
-import { Fragment, useState } from "react";
+import { Fragment, useState, useEffect } from "react";
 import { motion } from "framer-motion";
-//import { setMicStream, setVideoStream } from "../features/swift/swift";
-import Preview from "../components/Preview";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../app/store";
-import Room from "../components/Room";
 import { loadDevice, deviceHelper } from "../features/device/device";
 const Permissions = () => {
-  const [mic, setMic] = useState(false);
-  const [vid, setVideo] = useState(false);
-  const [complete, setComplete] = useState(false);
-  const [micStream, setMicStream] = useState<null | MediaStream>(null);
-  const [videoStream, setVideoStream] = useState<null | MediaStream>(null);
+  const [started, setStarted] = useState(false);
+  const [queryAudio, setQueryAudio] = useState<Boolean | null>(null);
+  const [queryVideo, setQueryVideo] = useState<Boolean | null>(null);
 
-  const joined = useSelector((state: RootState) => state.swift.joined);
-  const deviceState = useSelector((state: RootState) => state.device);
+  //const joined = useSelector((state: RootState) => state.swift.joined);
+  const deviceLoaded = useSelector((state: RootState) => state.device.loaded);
 
   const dispatch = useDispatch();
   dispatch(loadDevice());
 
+  /*
   const start = async () => {
     console.log("loaded?", deviceState);
     console.log(deviceHelper.getDevice());
@@ -37,7 +33,7 @@ const Permissions = () => {
 
     setComplete(true);
   };
-
+  */
   const Disclaimer = () => {
     return (
       <Fragment>
@@ -45,7 +41,9 @@ const Permissions = () => {
           We will ask permissions for your microphone & video
         </div>
         <button
-          onClick={start}
+          onClick={() => {
+            setStarted(true);
+          }}
           className="bg-gray-300 mt-5 px-4 py-2 rounded-sm"
         >
           Get Started
@@ -54,31 +52,48 @@ const Permissions = () => {
     );
   };
 
-  const MicPermissions = () => {
+  const Funnel = () => {
+    if (!started) {
+      return <Disclaimer />;
+    } else if (!deviceLoaded) {
+      return <div>Configuring settings...</div>;
+    } else if (queryAudio === null) {
+      return <QueryAudio />;
+    } else if (queryVideo === null) {
+      return <div>Test Video</div>;
+    } else {
+      return <div>Test</div>;
+    }
+  };
+
+  const QueryAudio = () => {
+    useEffect(() => {
+      async function askPermissions() {
+        await navigator.mediaDevices.getUserMedia({
+          audio: true,
+        });
+        setQueryAudio(true);
+      }
+      askPermissions();
+    });
     return (
-      <Fragment>
-        <motion.div
-          animate={{ opacity: 1, transition: { duration: 1 } }}
-          initial={{ opacity: 0 }}
-          className="text-gray-300 text-xl"
-        >
-          Asking microphone permissions..
-        </motion.div>
-      </Fragment>
+      <div className="text-gray-300 text-xl">
+        Asking microphone permissions..
+      </div>
     );
   };
 
-  const VidPermissions = () => {
+  const QueryVideo = () => {
+    useEffect(() => {
+      async function askPermissions() {
+        await navigator.mediaDevices.getUserMedia({
+          video: true,
+        });
+      }
+      askPermissions();
+    });
     return (
-      <Fragment>
-        <motion.div
-          animate={{ opacity: 1, transition: { duration: 1 } }}
-          initial={{ opacity: 0 }}
-          className="text-gray-300 text-xl"
-        >
-          Asking video permissions..
-        </motion.div>
-      </Fragment>
+      <div className="text-gray-300 text-xl">Asking video permissions..</div>
     );
   };
 
@@ -102,16 +117,7 @@ const Permissions = () => {
       className="bg-gray-800 fixed inset-0 flex justify-center items-center font-serif"
     >
       <div className="flex flex-col items-center justify-center">
-        Loaded? {JSON.stringify(deviceState.loaded)}
-        {!joined && !complete && !mic && !vid && <Disclaimer />}
-        {!joined && !complete && mic && !vid && <MicPermissions />}
-        {!joined && !complete && !mic && vid && <VidPermissions />}
-        {!joined && complete && (
-          <Preview micStream={micStream} videoStream={videoStream} />
-        )}
-        {joined && (
-          <Room micStream={micStream} videoStream={videoStream}></Room>
-        )}
+        <Funnel />
       </div>
     </motion.div>
   );
