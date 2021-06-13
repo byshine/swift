@@ -12,6 +12,7 @@ export default class DeviceHelper {
   }
 
   async loadDevice(routerRtpCapabilities: RtpCapabilities) {
-    return this.device.load({ routerRtpCapabilities });
+    await this.device.load({ routerRtpCapabilities });
+    return this.device;
   }
 }

@@ -5,7 +5,7 @@ import Preview from "../components/Preview";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../app/store";
 import Room from "../components/Room";
-import { loadDevice } from "../features/device/device";
+import { loadDevice, deviceHelper } from "../features/device/device";
 const Permissions = () => {
   const [mic, setMic] = useState(false);
   const [vid, setVideo] = useState(false);
@@ -21,7 +21,7 @@ const Permissions = () => {
 
   const start = async () => {
     console.log("loaded?", deviceState);
-
+    console.log(deviceHelper.getDevice());
     setMic(true);
     const micStream = await navigator.mediaDevices.getUserMedia({
       audio: true,

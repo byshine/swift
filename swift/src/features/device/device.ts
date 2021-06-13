@@ -1,21 +1,19 @@
 import DeviceHelper from "../../utils/DeviceHelper";
 import { createSlice, PayloadAction, createAsyncThunk } from "@reduxjs/toolkit";
 import { getRouterCapabilities } from "../../api/api";
+import { RtpCapabilities } from "mediasoup-client/lib/types";
 
 export const deviceHelper = new DeviceHelper();
 
-export const loadDevice = createAsyncThunk("device/loadDevice", async () => {
-  const result = await getRouterCapabilities();
-  const routerRtpCapabilities = result.data;
-  /*
-  await new Promise((resolve, reject) => {
-    setTimeout(() => {
-      resolve(true);
-    }, 5000);
-  });
-  */
-  return deviceHelper.loadDevice(routerRtpCapabilities);
-});
+export const loadDevice = createAsyncThunk(
+  "device/loadDevice",
+  async (test) => {
+    const result = await getRouterCapabilities();
+    const routerRtpCapabilities = result.data;
+    const device = await deviceHelper.loadDevice(routerRtpCapabilities);
+    return device.loaded;
+  }
+);
 
 export interface DeviceState {
   loaded: Boolean;
@@ -35,8 +33,8 @@ export const deviceSlice = createSlice({
   },
 
   extraReducers: (builder) => {
-    builder.addCase(loadDevice.fulfilled, (state) => {
-      state.loaded = true;
+    builder.addCase(loadDevice.fulfilled, (state, action) => {
+      state.loaded = action.payload;
     });
   },
 });
