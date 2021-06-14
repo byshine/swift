@@ -33,6 +33,62 @@ export const init = async () => {
     forceTcp: false,
     rtpCapabilities: device.rtpCapabilities,
   });
+  const producerTransport = device.createSendTransport(transport);
 
-  console.log("Transport", transport);
+  producerTransport.on(
+    "connect",
+    async ({ dtlsParameters }, callback, errback) => {
+      if (!socket.emitPromise) {
+        return;
+      }
+      socket
+        .emitPromise("connectProducerTransport", {
+          dtlsParameters,
+          id: producerTransport.id,
+        })
+        .then(callback)
+        .catch(errback);
+    }
+  );
+
+  producerTransport.on(
+    "produce",
+    async ({ kind, rtpParameters }, callback, errback) => {
+      console.log("Produce");
+      if (!socket.emitPromise) {
+        return;
+      }
+      const { id } = await socket.emitPromise("produce", {
+        id: producerTransport.id,
+        kind,
+        rtpParameters,
+      });
+      callback({ id });
+    }
+  );
+
+  producerTransport.on("connectionstatechange", (state) => {
+    switch (state) {
+      case "connecting":
+        console.log("Producer connecting");
+        break;
+      case "connected":
+        console.log("Add stream to video here");
+        break;
+      case "failed":
+        producerTransport.close();
+        break;
+      default:
+        break;
+    }
+  });
+
+  const videoStream = deviceHelper.getVideoStream();
+  console.log("it got here?", videoStream);
+  if (videoStream) {
+    const track = videoStream.getVideoTracks()[0];
+    const params = { track };
+    const videoProducer = await producerTransport.produce(params);
+    console.log("Video Producer", videoProducer);
+  }
 };

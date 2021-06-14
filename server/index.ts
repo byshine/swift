@@ -1,5 +1,5 @@
 import { Socket } from "socket.io";
-import { Worker, Router } from "mediasoup/lib/types";
+import { Worker, Router, DtlsParameters } from "mediasoup/lib/types";
 import { Request, Response } from 'express'
 import MediaSoupHelper from './utils/MediaSoupHelper'
 import Peer from "./utils/peer";
@@ -93,6 +93,28 @@ io.on('connection', (socket: Socket) => {
       const { transport, params } = await mediaSoupHelper.createWebRtcTransport(mediaSoupRouter);
       peer.addTransport(transport)
       callback(params)
+    });
+
+    type ConnectProducer = {
+      id: string,
+      dtlsParameters: DtlsParameters
+    }
+
+    socket.on('connectProducerTransport', async ({ id, dtlsParameters }: ConnectProducer, callback) => {
+      const result = await peer.connectTransport(id, dtlsParameters)
+      console.log("Connect Result", result)
+      callback();
+    });
+
+    socket.on('produce', async (data, callback) => {
+      const {id, kind, rtpParameters} = data;
+      const producer = await peer.createProducer(id, rtpParameters, kind)
+      if (producer) {
+        callback({ id: producer.id });
+      }
+    
+      // inform clients about new producer
+      //socket.broadcast.emit('peer.produce', { producer_id: producer.id, peer_id: peer_id});
     });
 })
 

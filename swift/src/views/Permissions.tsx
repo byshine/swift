@@ -2,7 +2,12 @@ import { Fragment, useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../app/store";
-import { loadDevice, queryAudio, queryVideo } from "../features/device/device";
+import {
+  loadDevice,
+  queryAudio,
+  queryVideo,
+  deviceHelper,
+} from "../features/device/device";
 import { setJoined } from "../features/swift/swift";
 import Room from "../components/Room";
 const Permissions = () => {
@@ -65,10 +70,11 @@ const Permissions = () => {
   const QueryAudio = () => {
     useEffect(() => {
       async function askPermissions() {
-        await navigator.mediaDevices.getUserMedia({
+        const stream = await navigator.mediaDevices.getUserMedia({
           audio: true,
         });
         dispatch(queryAudio(true));
+        deviceHelper.setAudioStream(stream);
       }
       askPermissions();
     });
@@ -82,10 +88,11 @@ const Permissions = () => {
   const QueryVideo = () => {
     useEffect(() => {
       async function askPermissions() {
-        await navigator.mediaDevices.getUserMedia({
+        const stream = await navigator.mediaDevices.getUserMedia({
           video: true,
         });
         dispatch(queryVideo(true));
+        deviceHelper.setVideoStream(stream);
       }
 
       askPermissions();

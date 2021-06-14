@@ -26,11 +26,11 @@ export default class DeviceHelper {
     this.videoStream = stream;
   }
 
-  getAudioStream(stream: MediaStream): MediaStream | null {
+  getAudioStream() {
     return this.audioStream;
   }
 
-  getVideoStream(stream: MediaStream): MediaStream | null {
+  getVideoStream() {
     return this.videoStream;
   }
 }
