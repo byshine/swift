@@ -1,8 +1,9 @@
 import React from "react";
+import { init } from "../utils/ws";
 
 class Room extends React.Component {
-  componentDidMount() {
-    console.log("Mounted");
+  async componentDidMount() {
+    await init();
   }
   render() {
     return <div>Room</div>;

@@ -2,6 +2,9 @@ import { Socket } from "socket.io";
 import { Worker, Router } from "mediasoup/lib/types";
 import { Request, Response } from 'express'
 import MediaSoupHelper from './utils/MediaSoupHelper'
+import Peer from "./utils/peer";
+import Room from "./utils/room";
+import Rooms from './utils/rooms'
 const config = require('./config')
 const mediasoup = require('mediasoup')
 const express = require('express')
@@ -65,13 +68,26 @@ app.get('/api/router/capabilities/', (req: Request, res: Response) => {
 })
 
 
+const rooms = new Rooms();
 
 io.on('connection', (socket: Socket) => {
-    console.log("Connected")
+
+  
+    const peer = new Peer(socket.id, socket.id)
+
+   
+    socket.on('disconnected', () => {
+      rooms.leaveRoom(peer.getRoomName(), peer)
+    })
 
     socket.on('getRouterRtpCapabilities', (data, callback) => {
       callback(mediaSoupRouter.rtpCapabilities)
     }); 
+
+    socket.on('joinRoom', (roomName) => {
+      console.log("Join Room initiated", roomName)
+      rooms.joinRoom(roomName, peer)
+    })
 })
 
 

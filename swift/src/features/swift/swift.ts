@@ -24,6 +24,6 @@ export const swiftSlice = createSlice({
   },
 });
 
-export const { setJoined } = swiftSlice.actions;
+export const { setJoined, connected } = swiftSlice.actions;
 
 export default swiftSlice.reducer;

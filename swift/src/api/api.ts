@@ -1,4 +1,4 @@
-import axios, { AxiosResponse } from "axios";
+import axios from "axios";
 import { RtpCapabilities } from "mediasoup-client/lib/types";
 
 export const getRouterCapabilities = async () => {

@@ -1,4 +1,7 @@
 import { io, Socket } from "socket.io-client";
+interface SocketPromise extends Socket {
+  emitPromise?: Function;
+}
 
 const emitPromise = function (socket: Socket) {
   return function request(type: string, data = {}) {
@@ -8,19 +11,18 @@ const emitPromise = function (socket: Socket) {
   };
 };
 
-interface SocketPromise extends Socket {
-  emitPromise?: Function;
-}
-
-export const init = () => {
+export const init = async () => {
   const socket: SocketPromise = io("https://localhost:4000");
   socket.emitPromise = emitPromise(socket);
-  // Narrow
-  if (!socket.emitPromise) {
-    return;
-  }
 
-  socket.on("connect", async () => {
+  socket.on("connect", () => {
     console.log("Connected");
   });
+
+  socket.on("connect_error", (error) => {
+    console.error(error);
+  });
+
+  const roomName = window.location.pathname;
+  socket.emitPromise("joinRoom", roomName);
 };
