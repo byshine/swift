@@ -1,12 +1,11 @@
 import Room from './room'
 import Peer from './peer'
-import { runInThisContext } from 'vm'
 export default class Rooms {
 
     rooms: Map<string, Room>
 
     constructor() {
-        rooms: new Map()
+        this.rooms = new Map()
     }
 
     joinRoom(roomName: string, peer: Peer) {
@@ -23,22 +22,25 @@ export default class Rooms {
     }
 
     leaveRoom(roomName: string, peer: Peer) {
+        
         if (!this.rooms.has(roomName)) {
             return false
         }
 
         const room = this.rooms.get(roomName)
+        
 
         if (!room) {
             return false
         }
 
         room.removePeer(peer)
+        console.log("Room", room)
+
 
         if (room.getNumPeers() === 0) {
             this.rooms.delete(roomName)
         }
-
 
     }
 }

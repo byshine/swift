@@ -26,10 +26,7 @@ class Room {
 
     removePeer(peer: Peer) {
         const id = peer.id
-        const index = this.peers.findIndex(p => p.id === id)
-        if (index > -1) {
-            this.peers = this.peers.slice(index, index+1)
-        }
+        this.peers = this.peers.filter(p => p.id !== id)
     }
 
     getPeer(peer: Peer) {
