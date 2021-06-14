@@ -24,5 +24,9 @@ export default class Peer {
     getRoomName() {
         return this.roomName
     }
+    
+    addTransport(transport: Transport) {
+        this.transports.set(transport.id, transport)
+    }
 
 }

@@ -76,12 +76,8 @@ io.on('connection', (socket: Socket) => {
     const peer = new Peer(socket.id, socket.id)
 
     socket.on('disconnect', () => {
-      console.log("Disconnected")
       const roomName = peer.getRoomName()
-      console.log("Room Name", roomName)
       rooms.leaveRoom(roomName, peer)
-      console.log("Rooms", rooms)
-      
     })
 
     socket.on('getRouterRtpCapabilities', (data, callback) => {
@@ -89,11 +85,21 @@ io.on('connection', (socket: Socket) => {
     }); 
 
     socket.on('joinRoom', (roomName) => {
-      console.log("Join Room initiated", roomName)
       rooms.joinRoom(roomName, peer)
       peer.setRoomName(roomName)
-      console.log("Rooms", rooms)
     })
+
+    socket.on('createProducerTransport', async (data, callback) => {
+      const { transport, params } = await mediaSoupHelper.createWebRtcTransport(mediaSoupRouter);
+      peer.addTransport(transport)
+      callback(params)
+    });
 })
+
+
+
+
+
+
 
 

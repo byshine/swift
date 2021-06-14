@@ -1,4 +1,5 @@
 import { io, Socket } from "socket.io-client";
+import { deviceHelper } from "../features/device/device";
 interface SocketPromise extends Socket {
   emitPromise?: Function;
 }
@@ -25,4 +26,13 @@ export const init = async () => {
 
   const roomName = window.location.pathname;
   socket.emitPromise("joinRoom", roomName);
+
+  const device = deviceHelper.getDevice();
+
+  const transport = await socket.emitPromise("createProducerTransport", {
+    forceTcp: false,
+    rtpCapabilities: device.rtpCapabilities,
+  });
+
+  console.log("Transport", transport);
 };
