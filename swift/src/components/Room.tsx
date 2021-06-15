@@ -9,13 +9,8 @@ interface Props {
 }
 
 class Room extends React.Component<Props> {
-  constructor(props: any) {
-    super(props);
-    console.log("Props", props);
-  }
   async componentDidMount() {
     await init();
-    console.log("Context", this.context);
   }
   render() {
     return <div>Room {JSON.stringify(this.props.peers)}</div>;

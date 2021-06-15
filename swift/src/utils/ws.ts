@@ -40,6 +40,7 @@ export const init = async () => {
     forceTcp: false,
     rtpCapabilities: device.rtpCapabilities,
   });
+
   const producerTransport = device.createSendTransport(transport);
 
   producerTransport.on(
@@ -65,11 +66,13 @@ export const init = async () => {
       if (!socket.emitPromise) {
         return;
       }
+      console.log("Produce ID", producerTransport.id);
       const { id } = await socket.emitPromise("produce", {
         id: producerTransport.id,
         kind,
         rtpParameters,
       });
+
       callback({ id });
     }
   );
@@ -77,12 +80,13 @@ export const init = async () => {
   producerTransport.on("connectionstatechange", (state) => {
     switch (state) {
       case "connecting":
-        console.log("Producer connecting");
+        console.log("Producer connecting", state);
         break;
       case "connected":
-        console.log("Add stream to video here");
+        console.log("Connected! Add stream to video here");
         break;
       case "failed":
+        console.log("Producer failed");
         producerTransport.close();
         break;
       default:
@@ -96,6 +100,5 @@ export const init = async () => {
     const track = videoStream.getVideoTracks()[0];
     const params = { track };
     const videoProducer = await producerTransport.produce(params);
-    console.log("Video Producer", videoProducer);
   }
 };

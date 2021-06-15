@@ -12,6 +12,7 @@ const app = express()
 const https = require('https');
 const fs = require('fs');
 const path = require('path');
+const cors = require('cors')
 const options = {
   key: fs.readFileSync(path.join(__dirname + '/ssl/server.key'), 'utf-8'),
   cert: fs.readFileSync(path.join(__dirname + '/ssl/server.crt'), 'utf-8')
@@ -49,11 +50,11 @@ async function setUpRouter(worker: Worker, mediaCodecs: any) {
 })()
 
 
-
+app.use(cors())
 const httpsServer = https.createServer(options, app)
 const io = require("socket.io")(httpsServer, {
   cors: {
-    origin: "http://localhost",
+    origin: "*",
     methods: ["GET", "POST"]
   } 
 });
@@ -111,7 +112,9 @@ io.on('connection', (socket: Socket) => {
       const producer = await peer.createProducer(id, rtpParameters, kind)
       if (producer) {
         callback({ id: producer.id });
+        console.log("Produce ID", id)
       }
+      
     
       // inform clients about new producer
       //socket.broadcast.emit('peer.produce', { producer_id: producer.id, peer_id: peer_id});
