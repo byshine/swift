@@ -72,8 +72,8 @@ const rooms = new Rooms();
 
 io.on('connection', (socket: Socket) => {
 
-  
     const peer = new Peer(socket.id, socket.id)
+  ;
 
     socket.on('disconnect', () => {
       const roomName = peer.getRoomName()

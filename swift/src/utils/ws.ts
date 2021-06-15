@@ -1,5 +1,7 @@
 import { io, Socket } from "socket.io-client";
 import { deviceHelper } from "../features/device/device";
+import { store } from "../app/store";
+import { addPeer } from "../features/peers/peers";
 interface SocketPromise extends Socket {
   emitPromise?: Function;
 }
@@ -22,6 +24,11 @@ export const init = async () => {
 
   socket.on("connect_error", (error) => {
     console.error(error);
+  });
+
+  socket.on("peer.joined", (peer) => {
+    console.log("Peer joined", peer);
+    store.dispatch(addPeer({ id: peer.id }));
   });
 
   const roomName = window.location.pathname;
