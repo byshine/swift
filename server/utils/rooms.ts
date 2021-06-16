@@ -8,6 +8,10 @@ export default class Rooms {
         this.rooms = new Map()
     }
 
+    getRoom(roomName: string) {
+        return this.rooms.get(roomName)
+    }
+
     joinRoom(roomName: string, peer: Peer) {
         if (this.rooms.has(roomName)) {
             const room = this.rooms.get(roomName)

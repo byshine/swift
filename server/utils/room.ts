@@ -29,9 +29,8 @@ class Room {
         this.peers = this.peers.filter(p => p.id !== id)
     }
 
-    getPeer(peer: Peer) {
-        const id = peer.id
-        return this.peers.find(p => p.id === id)
+    getPeer(peer_id: string) {
+        return this.peers.find(p => p.id === peer_id)
     }
 
     getNumPeers() {

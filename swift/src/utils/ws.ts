@@ -1,9 +1,10 @@
 import { io, Socket } from "socket.io-client";
 import { deviceHelper } from "../features/device/device";
 import { store } from "../app/store";
-import { addPeer } from "../features/peers/peers";
+import { addPeer, Peer } from "../features/peers/peers";
 import { Device } from "mediasoup-client";
-import { Transport } from "mediasoup-client/lib/Transport";
+import { Transport, Producer } from "mediasoup-client/lib/types";
+
 interface SocketPromise extends Socket {
   emitPromise?: Function;
 }
@@ -30,7 +31,7 @@ export const init = async () => {
 
   socket.on("peer.joined", (peer) => {
     console.log("Peer joined", peer);
-    store.dispatch(addPeer({ id: peer.id }));
+    store.dispatch(addPeer({ id: peer.id, name: peer.id }));
   });
 
   const roomName = window.location.pathname;
@@ -171,5 +172,26 @@ export const init = async () => {
     const stream = new MediaStream();
     stream.addTrack(consumer.track);
     return stream;
+  }
+
+  let peers = await socket.emitPromise("room.getPeers", {
+    roomName,
+  });
+  peers = peers.filter((p: Peer) => p.id !== socket.id);
+  for (let i = 0; i < peers.length; i++) {
+    const peer_id = peers[i].id;
+    const producers = await socket.emitPromise("peer.getProducers", {
+      roomName,
+      peer_id,
+    });
+
+    let stream = null;
+    if (producers.length > 0) {
+      stream = new MediaStream();
+      for (let k = 0; k < producers.length; k++) {
+        const track = await consume(consumerTransport, device, producers[k]);
+        console.log("Consuming Track", track);
+      }
+    }
   }
 };

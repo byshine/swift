@@ -136,6 +136,37 @@ io.on('connection', (socket: Socket) => {
         callback(false)
       }
     });
+
+    socket.on('room.getPeers', async(data, callback) => {
+      const { roomName } = data;
+      const room = rooms.getRoom(roomName)
+      if (!room) {
+        callback([])
+        return;
+      }
+      callback(room.getPeers())
+    })
+
+    socket.on('peer.getProducers', async(data, callback) => {
+      
+      const { roomName, peer_id } = data;
+      const room = rooms.getRoom(roomName)
+      if (!room) {
+        callback([])
+        return;
+      }
+      console.log("Room", room)
+      console.log("peerid", peer_id)
+      const peer = room.getPeer(peer_id)
+      if (!peer) {
+        callback([])
+        return;
+      }
+    
+      callback(Array.from(peer.producers.values()).map(p => p.id))
+    })
+
+
 })
 
 
