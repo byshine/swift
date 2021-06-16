@@ -3,10 +3,8 @@ import { Worker, Router, DtlsParameters } from "mediasoup/lib/types";
 import { Request, Response } from 'express'
 import MediaSoupHelper from './utils/MediaSoupHelper'
 import Peer from "./utils/peer";
-import Room from "./utils/room";
 import Rooms from './utils/rooms'
 const config = require('./config')
-const mediasoup = require('mediasoup')
 const express = require('express')
 const app = express()
 const https = require('https');
@@ -114,10 +112,29 @@ io.on('connection', (socket: Socket) => {
         callback({ id: producer.id });
         console.log("Produce ID", id)
       }
-      
-    
       // inform clients about new producer
       //socket.broadcast.emit('peer.produce', { producer_id: producer.id, peer_id: peer_id});
+    });
+
+    socket.on('createConsumerTransport', async (data, callback) => {
+      const { transport, params } = await mediaSoupHelper.createWebRtcTransport(mediaSoupRouter);
+      peer.addTransport(transport)
+      callback(params);
+    });
+
+    socket.on('connectConsumerTransport', async ({ id, dtlsParameters }, callback) => {
+      await peer.connectTransport(id, dtlsParameters)
+      callback();
+    });
+
+    socket.on('consume', async (data, callback) => {
+      const { producer_id, consumer_transport_id, rtpCapabilities } = data;
+      const consumer = await peer.createConsumer(consumer_transport_id, producer_id,  rtpCapabilities)
+      if (consumer) {
+        callback(consumer.params);
+      } else {
+        callback(false)
+      }
     });
 })
 

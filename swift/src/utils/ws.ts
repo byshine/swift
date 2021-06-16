@@ -2,6 +2,8 @@ import { io, Socket } from "socket.io-client";
 import { deviceHelper } from "../features/device/device";
 import { store } from "../app/store";
 import { addPeer } from "../features/peers/peers";
+import { Device } from "mediasoup-client";
+import { Transport } from "mediasoup-client/lib/Transport";
 interface SocketPromise extends Socket {
   emitPromise?: Function;
 }
@@ -95,10 +97,79 @@ export const init = async () => {
   });
 
   const videoStream = deviceHelper.getVideoStream();
-  console.log("it got here?", videoStream);
+
   if (videoStream) {
     const track = videoStream.getVideoTracks()[0];
     const params = { track };
     const videoProducer = await producerTransport.produce(params);
+  }
+
+  const audioStream = deviceHelper.getAudioStream();
+  if (audioStream) {
+    const track = audioStream.getAudioTracks()[0];
+    const params = { track };
+    const audioProducer = await producerTransport.produce(params);
+  }
+
+  const consumerData = await socket.emitPromise("createConsumerTransport");
+  const consumerTransport = device.createRecvTransport(consumerData);
+
+  consumerTransport.on("connect", ({ dtlsParameters }, callback, errback) => {
+    if (!socket.emitPromise) {
+      return;
+    }
+    socket
+      .emitPromise("connectConsumerTransport", {
+        id: consumerTransport.id,
+        dtlsParameters,
+      })
+      .then(callback)
+      .catch(errback);
+  });
+
+  consumerTransport.on("connectionstatechange", async (state) => {
+    switch (state) {
+      case "connecting":
+        console.log("Consumer transport connecting");
+        break;
+
+      case "connected":
+        console.log("Consumer transport connected");
+        break;
+
+      case "failed":
+        console.log("Consumer transport failed");
+        transport.close();
+        break;
+      default:
+        break;
+    }
+  });
+
+  async function consume(
+    transport: Transport,
+    device: Device,
+    producer_id: string
+  ) {
+    if (!socket.emitPromise) {
+      return;
+    }
+    const { rtpCapabilities } = device;
+    const data = await socket.emitPromise("consume", {
+      producer_id,
+      consumer_transport_id: transport.id,
+      rtpCapabilities,
+    });
+    const { producerId, id, kind, rtpParameters } = data;
+
+    const consumer = await transport.consume({
+      id,
+      producerId,
+      kind,
+      rtpParameters,
+    });
+    const stream = new MediaStream();
+    stream.addTrack(consumer.track);
+    return stream;
   }
 };
