@@ -1,5 +1,5 @@
 import { Socket } from "socket.io";
-import { Worker, Router, DtlsParameters } from "mediasoup/lib/types";
+import { Worker, Router, DtlsParameters, PipeTransport } from "mediasoup/lib/types";
 import { Request, Response } from 'express'
 import MediaSoupHelper from './utils/MediaSoupHelper'
 import Peer from "./utils/peer";
@@ -71,11 +71,12 @@ const rooms = new Rooms();
 
 io.on('connection', (socket: Socket) => {
 
-    const peer = new Peer(socket.id, socket.id)
-  ;
+    const peer = new Peer(socket.id, socket.id);
 
     socket.on('disconnect', () => {
+      
       const roomName = peer.getRoomName()
+      socket.leave(roomName)
       rooms.leaveRoom(roomName, peer)
     })
 
@@ -84,6 +85,7 @@ io.on('connection', (socket: Socket) => {
     }); 
 
     socket.on('joinRoom', (roomName) => {
+      socket.join(roomName)
       rooms.joinRoom(roomName, peer)
       peer.setRoomName(roomName)
     })
@@ -106,13 +108,14 @@ io.on('connection', (socket: Socket) => {
     });
 
     socket.on('produce', async (data, callback) => {
-      const {id, kind, rtpParameters} = data;
+      const {id, kind, rtpParameters, roomName} = data;
       const producer = await peer.createProducer(id, rtpParameters, kind)
       if (producer) {
         callback({ id: producer.id });
         console.log("Produce ID", id)
+        socket.to(roomName).emit('peer.producer', { producer_id: producer.id, peer_id: peer.id } )
       }
-      // inform clients about new producer
+      
       //socket.broadcast.emit('peer.produce', { producer_id: producer.id, peer_id: peer_id});
     });
 

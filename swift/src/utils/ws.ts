@@ -29,11 +29,6 @@ export const init = async () => {
     console.error(error);
   });
 
-  socket.on("peer.joined", (peer) => {
-    console.log("Peer joined", peer);
-    store.dispatch(addPeer({ id: peer.id, name: peer.id }));
-  });
-
   const roomName = window.location.pathname;
   socket.emitPromise("joinRoom", roomName);
 
@@ -71,6 +66,7 @@ export const init = async () => {
       }
       console.log("Produce ID", producerTransport.id);
       const { id } = await socket.emitPromise("produce", {
+        roomName,
         id: producerTransport.id,
         kind,
         rtpParameters,
@@ -151,9 +147,9 @@ export const init = async () => {
     transport: Transport,
     device: Device,
     producer_id: string
-  ) {
+  ): Promise<MediaStreamTrack | null> {
     if (!socket.emitPromise) {
-      return;
+      return Promise.reject(null);
     }
     const { rtpCapabilities } = device;
     const data = await socket.emitPromise("consume", {
@@ -169,9 +165,7 @@ export const init = async () => {
       kind,
       rtpParameters,
     });
-    const stream = new MediaStream();
-    stream.addTrack(consumer.track);
-    return stream;
+    return consumer.track;
   }
 
   let peers = await socket.emitPromise("room.getPeers", {
@@ -190,8 +184,14 @@ export const init = async () => {
       stream = new MediaStream();
       for (let k = 0; k < producers.length; k++) {
         const track = await consume(consumerTransport, device, producers[k]);
-        console.log("Consuming Track", track);
+        if (track) {
+          stream.addTrack(track);
+        }
       }
     }
   }
+
+  socket.on("peer.producer", (data) => {
+    console.log("peer joined", data);
+  });
 };
