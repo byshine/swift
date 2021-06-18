@@ -1,14 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { Transport, Producer, Consumer } from "mediasoup-client/lib/types";
-
-export interface Peer {
-  id: string;
-  name: string;
-  transports?: Map<string, Transport>;
-  producers?: Map<string, Producer>;
-  consumers?: Map<string, Consumer>;
-  roomName?: string;
-}
+import Peer from "../../utils/Peer";
 
 export interface Peers {
   peers: Peer[];

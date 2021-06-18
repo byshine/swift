@@ -31,7 +31,6 @@ export const init = async () => {
 
   const roomName = window.location.pathname;
   socket.emitPromise("joinRoom", roomName);
-
   const device = deviceHelper.getDevice();
 
   const transport = await socket.emitPromise("createProducerTransport", {
@@ -192,6 +191,8 @@ export const init = async () => {
   }
 
   socket.on("peer.producer", (data) => {
-    console.log("peer joined", data);
+    console.log("peer producer", data);
   });
+
+  socket.on("peer.joinRoom", (data) => {});
 };

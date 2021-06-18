@@ -88,6 +88,7 @@ io.on('connection', (socket: Socket) => {
       socket.join(roomName)
       rooms.joinRoom(roomName, peer)
       peer.setRoomName(roomName)
+      socket.to(roomName).emit('peer.joinRoom', peer)
     })
 
     socket.on('createProducerTransport', async (data, callback) => {

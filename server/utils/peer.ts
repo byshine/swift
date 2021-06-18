@@ -29,6 +29,14 @@ export default class Peer {
         this.transports.set(transport.id, transport)
     }
 
+    addProducerTransport(producer: Producer) {
+        this.producers.set(producer.id, producer)
+    }
+
+    addConsumerTransport(consumer: Consumer) {
+        this.consumers.set(consumer.id, consumer)
+    }
+
     async connectTransport(transport_id: string, dtlsParameters: DtlsParameters) {
         if (!this.transports.has(transport_id)) {
             return
