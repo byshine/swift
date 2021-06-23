@@ -15,6 +15,10 @@ export default class Peer {
     this.producers = new Map();
     this.roomName = roomName;
     this.mediaStream = new MediaStream();
+
+    this.mediaStream.addEventListener("addtrack", (ev) => {
+      console.log("Track added to peer", ev);
+    });
   }
 
   addTrack(track: MediaStreamTrack) {

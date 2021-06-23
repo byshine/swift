@@ -11,6 +11,7 @@ interface Props {
 class Room extends React.Component<Props> {
   async componentDidMount() {
     await init();
+    console.log(this.props.peers);
   }
   render() {
     return <div>Room {JSON.stringify(this.props.peers)}</div>;
