@@ -18,9 +18,20 @@ export const peersSlice = createSlice({
       state.peers.push(action.payload);
       console.log("Peer added", state.peers);
     },
+    removePeer: (state, action: PayloadAction<Peer>) => {
+      const peer = action.payload;
+      state.peers = state.peers.filter((p) => p.id !== peer.id);
+      console.log("Peer Removed", state.peers);
+    },
+    addTrack: (
+      state,
+      action: PayloadAction<{ track: MediaStreamTrack; peer: Peer }>
+    ) => {
+      console.log("Peer AddTrack");
+    },
   },
 });
 
-export const { addPeer } = peersSlice.actions;
+export const { addPeer, removePeer } = peersSlice.actions;
 
 export default peersSlice.reducer;

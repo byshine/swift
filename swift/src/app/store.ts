@@ -1,7 +1,13 @@
-import { configureStore, ThunkAction, Action } from "@reduxjs/toolkit";
+import {
+  configureStore,
+  ThunkAction,
+  Action,
+  getDefaultMiddleware,
+} from "@reduxjs/toolkit";
 import swiftReducer from "../features/swift/swift";
 import deviceReducer from "../features/device/device";
 import peersReducer from "../features/peers/peers";
+import { logger } from "../features/middlewares/middlewares";
 
 export const store = configureStore({
   reducer: {
@@ -9,6 +15,7 @@ export const store = configureStore({
     device: deviceReducer,
     peers: peersReducer,
   },
+  middleware: [...getDefaultMiddleware(), logger],
 });
 
 export type AppDispatch = typeof store.dispatch;

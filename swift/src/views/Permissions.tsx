@@ -15,7 +15,10 @@ const Permissions = () => {
   const device = useSelector((state: RootState) => state.device);
   const joined = useSelector((state: RootState) => state.swift.joined);
   const dispatch = useDispatch();
-  dispatch(loadDevice());
+
+  useEffect(() => {
+    dispatch(loadDevice());
+  }, [dispatch]);
 
   const Disclaimer = () => {
     return (

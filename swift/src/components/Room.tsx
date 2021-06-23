@@ -2,7 +2,7 @@ import React from "react";
 import { init } from "../utils/ws";
 import { connect } from "react-redux";
 import { RootState } from "../app/store";
-import { Peer } from "../features/peers/peers";
+import Peer from "../utils/Peer";
 
 interface Props {
   peers: Peer[];

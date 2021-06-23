@@ -17,6 +17,10 @@ export default class Peer {
         this.consumers = new Map();
     }
 
+    close() {
+        this.transports.forEach(transport => transport.close())
+    }
+
     setRoomName(roomName: string) {
         this.roomName = roomName
     }

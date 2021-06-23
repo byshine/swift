@@ -74,8 +74,9 @@ io.on('connection', (socket: Socket) => {
     const peer = new Peer(socket.id, socket.id);
 
     socket.on('disconnect', () => {
-      
       const roomName = peer.getRoomName()
+      socket.to(roomName).emit('peer.leaveRoom', peer)
+      peer.close();
       socket.leave(roomName)
       rooms.leaveRoom(roomName, peer)
     })

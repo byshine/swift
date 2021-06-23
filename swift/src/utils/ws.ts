@@ -1,9 +1,10 @@
 import { io, Socket } from "socket.io-client";
 import { deviceHelper } from "../features/device/device";
 import { store } from "../app/store";
-import { addPeer, Peer } from "../features/peers/peers";
+import { addPeer, removePeer } from "../features/peers/peers";
+import Peer from "../utils/Peer";
 import { Device } from "mediasoup-client";
-import { Transport, Producer } from "mediasoup-client/lib/types";
+import { Transport } from "mediasoup-client/lib/types";
 
 interface SocketPromise extends Socket {
   emitPromise?: Function;
@@ -190,9 +191,18 @@ export const init = async () => {
     }
   }
 
-  socket.on("peer.producer", (data) => {
-    console.log("peer producer", data);
+  socket.on("peer.producer", async (data) => {
+    const { producer_id } = data;
+    const track = await consume(consumerTransport, device, producer_id);
+    console.log("Consuming Track", track);
   });
 
-  socket.on("peer.joinRoom", (data) => {});
+  socket.on("peer.joinRoom", (peerData) => {
+    const peer = new Peer(peerData.id, peerData.name, roomName);
+    store.dispatch(addPeer(peer));
+  });
+
+  socket.on("peer.leaveRoom", (peer) => {
+    store.dispatch(removePeer(peer));
+  });
 };
